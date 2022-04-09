@@ -1,38 +1,104 @@
 defmodule Authy.User do
-  use Ecto.Schema
+  @moduledoc """
+  The User context.
+  """
 
-  @primary_key {:id, :binary_id, autogenerate: true}
-  @timestamps_opts [type: :utc_datetime_usec]
+  import Ecto.Query, warn: false
+  alias Authy.Repo
 
-  @required_for_new [:username, :email, :password]
-  @required_for_change [:username, :email]
+  alias Authy.User.Token
 
-  schema "users" do
-    field :username, :string
-    field :email, :string
-    field :last_login, :utc_datetime_usec
-    field :password, :string, redact: true
+  @doc """
+  Returns the list of tokens.
 
-    timestamps()
+  ## Examples
+
+      iex> list_tokens()
+      [%Token{}, ...]
+
+  """
+  def list_tokens do
+    Repo.all(Token)
   end
 
-  def changeset(user, params) do
-    user
-    |> Ecto.Changeset.cast(params, [:username, :email, :last_login, :password])
-    |> Ecto.Changeset.validate_required(get_required(user))
-    |> Ecto.Changeset.validate_length(:username, max: 40)
-    |> Ecto.Changeset.validate_length(:email, max: 100)
-    |> Ecto.Changeset.unique_constraint([:username, :email])
-    |> hash_password()
+  @doc """
+  Gets a single token.
+
+  Raises `Ecto.NoResultsError` if the Token does not exist.
+
+  ## Examples
+
+      iex> get_token!(123)
+      %Token{}
+
+      iex> get_token!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_token!(id), do: Repo.get!(Token, id)
+
+  @doc """
+  Creates a token.
+
+  ## Examples
+
+      iex> create_token(%{field: value})
+      {:ok, %Token{}}
+
+      iex> create_token(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_token(attrs \\ %{}) do
+    %Token{}
+    |> Token.changeset(attrs)
+    |> Repo.insert()
   end
 
-  defp get_required(%{id: nil}), do: @required_for_new
-  defp get_required(_user), do: @required_for_change
+  @doc """
+  Updates a token.
 
-  defp hash_password(%Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset) do
-    hash = Bcrypt.hash_pwd_salt(password)
-    Ecto.Changeset.put_change(changeset, :password, hash)
+  ## Examples
+
+      iex> update_token(token, %{field: new_value})
+      {:ok, %Token{}}
+
+      iex> update_token(token, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_token(%Token{} = token, attrs) do
+    token
+    |> Token.changeset(attrs)
+    |> Repo.update()
   end
 
-  defp hash_password(changeset), do: changeset
+  @doc """
+  Deletes a token.
+
+  ## Examples
+
+      iex> delete_token(token)
+      {:ok, %Token{}}
+
+      iex> delete_token(token)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_token(%Token{} = token) do
+    Repo.delete(token)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking token changes.
+
+  ## Examples
+
+      iex> change_token(token)
+      %Ecto.Changeset{data: %Token{}}
+
+  """
+  def change_token(%Token{} = token, attrs \\ %{}) do
+    Token.changeset(token, attrs)
+  end
 end
