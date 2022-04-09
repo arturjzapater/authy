@@ -5,7 +5,7 @@ config :authy, Authy.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  database: "authy_db_1",
+  database: "authy",
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
