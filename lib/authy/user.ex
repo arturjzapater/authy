@@ -8,6 +8,8 @@ defmodule Authy.User do
     field :username, :string
     field :email, :string
     field :last_login, :utc_datetime_usec
+
+    timestamps()
   end
 
   def changeset(user, params \\ %{}) do
