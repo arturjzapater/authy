@@ -11,6 +11,8 @@ defmodule Authy.Repo.Migrations.CreateTokens do
 
       add :token, :string, null: false
 
+      add :data, :json, null: false, default: fragment("'{}'::json")
+
       timestamps(updated_at: false, type: :utc_datetime_usec, default: fragment("now()"))
     end
   end
