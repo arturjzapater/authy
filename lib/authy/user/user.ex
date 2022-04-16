@@ -2,6 +2,8 @@ defmodule Authy.User.User do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Authy.User.Token
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   @timestamps_opts [type: :utc_datetime_usec]
@@ -16,6 +18,8 @@ defmodule Authy.User.User do
     field :password, :string, redact: true
 
     timestamps()
+
+    has_many :tokens, Token
   end
 
   def changeset(user, params) do

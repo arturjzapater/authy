@@ -7,35 +7,15 @@ defmodule Authy.User do
   alias Authy.Repo
 
   alias Authy.User.Token
+  alias Authy.User.User
 
-  @doc """
-  Returns the list of tokens.
-
-  ## Examples
-
-      iex> list_tokens()
-      [%Token{}, ...]
-
-  """
-  def list_tokens do
-    Repo.all(Token)
+  def logout(token) do
+    Repo.delete_all(from t in Token, where: t.token == ^token)
   end
 
-  @doc """
-  Gets a single token.
-
-  Raises `Ecto.NoResultsError` if the Token does not exist.
-
-  ## Examples
-
-      iex> get_token!(123)
-      %Token{}
-
-      iex> get_token!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_token!(id), do: Repo.get!(Token, id)
+  def get_user!(token) do
+    Repo.one!(from u in User, left_join: t in assoc(u, :tokens), where: t.token == ^token)
+  end
 
   @doc """
   Creates a token.
