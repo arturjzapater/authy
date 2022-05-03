@@ -3,18 +3,29 @@ defmodule Authy.User do
   The User context.
   """
 
+  import Bcrypt, only: [check_pass: 2]
   import Ecto.Query, warn: false
   alias Authy.Repo
 
   alias Authy.User.Token
   alias Authy.User.User
 
+  def login(%{"username" => username, "password" => password}) do
+    username
+    |> get_by_username()
+    |> check_pass(password)
+  end
+
   def logout(token) do
     Repo.delete_all(from t in Token, where: t.token == ^token)
   end
 
-  def get_user!(token) do
+  def get_by_token(token) do
     Repo.one!(from u in User, left_join: t in assoc(u, :tokens), where: t.token == ^token)
+  end
+
+  def get_by_username(username) do
+    Repo.one(from u in User, where: u.username == ^username)
   end
 
   @doc """
@@ -36,24 +47,6 @@ defmodule Authy.User do
   end
 
   @doc """
-  Updates a token.
-
-  ## Examples
-
-      iex> update_token(token, %{field: new_value})
-      {:ok, %Token{}}
-
-      iex> update_token(token, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_token(%Token{} = token, attrs) do
-    token
-    |> Token.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
   Deletes a token.
 
   ## Examples
@@ -67,18 +60,5 @@ defmodule Authy.User do
   """
   def delete_token(%Token{} = token) do
     Repo.delete(token)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking token changes.
-
-  ## Examples
-
-      iex> change_token(token)
-      %Ecto.Changeset{data: %Token{}}
-
-  """
-  def change_token(%Token{} = token, attrs \\ %{}) do
-    Token.changeset(token, attrs)
   end
 end
